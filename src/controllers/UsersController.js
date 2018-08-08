@@ -16,7 +16,12 @@ class UsersController extends Controller {
     }
 
     get() {
-
+        User.findById(this.req.params.id, (err, user) => {
+            if (!user){
+                return this.next(new Error('No se pudo obtener Usuario con id ' + this.req.params.id));
+            }
+            this.res.json(user);
+        });
     }
 
     /* Agregar un Dato */
@@ -43,7 +48,7 @@ class UsersController extends Controller {
             user.email      =   this.req.body.email;
             user.password   =   this.req.body.password;
             user.created    =   Date.now();
-            user.status      =   true;
+            user.status     =   this.req.body.status;
     
             user.save()
             .then(user => {

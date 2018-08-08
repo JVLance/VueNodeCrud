@@ -99,6 +99,7 @@
 
     export default {
         name: 'UserForm',
+        props: ['id'],
         data(){
             return {
                 error: false
@@ -110,13 +111,19 @@
             })
         },
         created(){
-            if (typeof this.user.id == 'undefined'){
+            if (typeof this.id == 'undefined'){
                 this.$store.commit(usersTypes.mutations.cleanUser);
+            }else{
+                this.read(this.id).then(res => true, error => {
+                    console.log(error);
+                    this.error = true;
+                });
             }
         },
         methods: {
             ...mapActions({
-                save: usersTypes.actions.save
+                save: usersTypes.actions.save,
+                read: usersTypes.actions.read
             }),
             validateBeforeSubmit () {
             this.$validator.validateAll()
@@ -125,7 +132,7 @@
                         //Fallan las validaciones
                     }else{
                         this.save({
-                            id : this.user.id,
+                            id : this.user._id,
                             name: this.user.name,
                             email: this.user.email,
                             password: this.user.password,

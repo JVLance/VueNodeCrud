@@ -8,7 +8,7 @@ export default namespace('users', {
     actions : [
         'read',
         'save',
-        'delete'
+        'drop'
     ],
     mutations : [
         'cleanUser',

@@ -18,9 +18,10 @@ export default new Router({
       component: UserForm
     },
     {
-      path: '/users/edit',
+      path: '/users/edit/:id',
       name: 'UserEdit',
-      component: UserForm
+      component: UserForm,
+      props: true 
     }
   ]
 })

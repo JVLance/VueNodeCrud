@@ -4,31 +4,29 @@ import Vue from 'vue';
 
 const state = {
     users : [],
-    baseUSer: {
-        id: null,
-        name: '',
-        email: '',
-        password: '',
-        created: '',
-        status: true
-    },
     selectedUser: {}
 }
 
 
 const actions = {
-    
-    [types.actions.read]: ({commit}) => {
-        commit(globalTypes.mutations.startProcessing);
-        Vue.http.get('user').then(user => {
-            commit(types.mutations.reload, {apiResponse: user});
-            commit(globalTypes.mutations.stopProcessing);
-        })
-    },
-    [types.actions.save]: ({commit}, userInput) => {
-    
+    [types.actions.read]: ({commit}, userId) => {
         commit(globalTypes.mutations.startProcessing);
 
+        if (typeof userId == "undefined"){
+            Vue.http.get('user').then(user => {
+                commit(types.mutations.reload, {apiResponse: user});
+                commit(globalTypes.mutations.stopProcessing);
+            });
+            return;
+        }
+        
+        Vue.http.get('user/' + userId).then(user => {
+            commit(types.mutations.setUSer, {selectedUser: user.body});
+            commit(globalTypes.mutations.stopProcessing);
+        });
+    },
+    [types.actions.save]: ({commit}, userInput) => {
+        commit(globalTypes.mutations.startProcessing);
         if (userInput.id == null){
             delete(userInput.id);
             let create = new Date();
@@ -36,8 +34,8 @@ const actions = {
         }
 
         return new Promise((resolve, reject) => {
-            Vue.http.post('user', userInput)
-                .then(user => {
+
+            (typeof userInput.id == 'undefined' ? Vue.http.post('user', userInput) :  Vue.http.put('user/' + userInput.id, userInput)).then(user => {
                     resolve(user);
                 })
                 .catch(error => {
@@ -47,6 +45,13 @@ const actions = {
                     commit(globalTypes.mutations.stopProcessing);
                 });
         })
+    },
+    [types.actions.drop]: ({commit, dispatch}, userId) => {
+        commit(globalTypes.mutations.startProcessing);
+        Vue.http.delete('user/' + userId).then(user => {
+            commit(globalTypes.mutations.stopProcessing);
+            dispatch(types.actions.read);
+        });
     }
 };
 
@@ -58,7 +63,14 @@ const getters = {
 
 const mutations = {
     [types.mutations.cleanUser]:(state) => {
-        state.selectedUser = state.baseUSer;
+        state.selectedUser = {
+            id: null,
+            name: '',
+            email: '',
+            password: '',
+            created: '',
+            status: true
+        };
     },
     [types.mutations.reload]: (state, {apiResponse}) => {
         state.users = apiResponse.data;
@@ -88,6 +100,7 @@ const mutations = {
     }
     */
 }
+
 
 export default {
     state,

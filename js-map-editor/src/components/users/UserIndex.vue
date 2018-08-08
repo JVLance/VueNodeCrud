@@ -14,6 +14,7 @@
                         <th>Email</th>
                         <th>Fecha Creación</th>
                         <th>Status</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,6 +25,10 @@
                         <td>
                             <span class="label label-success" v-if="user.status">Activo</span>
                             <span class="label label-danger" v-if="!user.status">Inactivo</span>
+                        </td>
+                        <td>
+                            <button type = "button" class = "btn btn-success btn-xs" v-on:click="edit(user)">Editar</button>
+                            <button type = "button" class = "btn btn-danger btn-xs" v-on:click="drop(user._id)">Eliminar</button>
                         </td>
                     </tr>
                 </tbody>
@@ -37,6 +42,7 @@
 
     import usersTypes from '@/types/users';
     import {mapGetters} from 'vuex';
+    import {mapActions} from 'vuex';
 
     export default {
         name : 'UserIndex',
@@ -47,16 +53,16 @@
             })
         },
         methods: {
+            ...mapActions({
+                drop: usersTypes.actions.drop
+            }),
             add(){
                 this.$store.commit(usersTypes.mutations.cleanUser);
                 this.$router.push('/users/add');
             },
             edit(user){
                 this.$store.commit(usersTypes.mutations.setUSer, {selectedUser: user});
-                this.$router.push('/users/edit');
-            },
-            delete(){
-
+                this.$router.push('/users/edit/'+user._id);
             }
         },
         mounted () {
